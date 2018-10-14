@@ -72,19 +72,18 @@ def getScreenAreaStripe():
 
     im = pyautogui.screenshot("screen_region.jpg", region=(
         screenshotLocationX, screenshotLocationY, 500, 200))
-    im.show()
+    return im
 
-def getScreenAreaLarge():
-    initLoc = ()
-    finalLoc = ()
+def getOnclickLocation():
+    clickLoc = ()
 
     def on_click(x, y, button, pressed):
         if pressed:
-            nonlocal initLoc
-            initLoc = (x,y)
-        else:
-            nonlocal finalLoc
-            finalLoc = (x,y)
+            print('heer')
+            nonlocal clickLoc
+            clickLoc = (x,y)
+
+        
         if not pressed:
             # Stop listener
             return False
@@ -94,24 +93,42 @@ def getScreenAreaLarge():
             on_click=on_click,) as listener:
         listener.join()
     
+    return clickLoc
+    # print(initLoc)
+    # print(finalLoc)
+
+    # screenshotLocationX = initLoc[0]
+    # screenshotLocationY = initLoc[1]
+
+    # screenShotWidth = abs(initLoc[0] - finalLoc[0])
+    # screenShotheight = abs (initLoc[1] - finalLoc[1])
     
-    print(initLoc)
-    print(finalLoc)
-
-    screenshotLocationX = initLoc[0]
-    screenshotLocationY = initLoc[1]
-
-    screenShotWidth = abs(initLoc[0] - finalLoc[0])
-    screenShotheight = abs (initLoc[1] - finalLoc[1])
-    
-    im = pyautogui.screenshot(region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotheight))
-    im.show()
+    # im = pyautogui.screenshot("screen_region.jpg", region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotheight))
+    # im.show()
 
 
-def ocrCapturedImage():
+# def ocrCapturedImage():
     #add code to ocr image here using pytesseract
 
-def ttsTheText():
-    #add code for tts here
+#def ttsTheText():
+    #add code for tts 
+
+def getScreenAreaLarge():
+    clickLocInit = getOnclickLocation()
+    clickLocFinal = getOnclickLocation()
+
+    print(clickLocInit)
+    print(clickLocFinal)
+    
+    screenshotLocationX = clickLocInit[0]
+    screenshotLocationY = clickLocInit[0]
+    
+    screenShotWidth = abs(clickLocInit[0] - clickLocFinal[0])
+    screenShotHeight = abs (clickLocInit[1] - clickLocFinal[1])
+
+    im = pyautogui.screenshot("screen_region.jpg", region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotHeight))
+    return im
+
+
+
 getScreenAreaLarge()
-ocrCapturedImage()

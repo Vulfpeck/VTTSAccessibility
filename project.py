@@ -6,6 +6,10 @@ import time
 import pyautogui
 from win32api import GetSystemMetrics
 from pynput import mouse
+from PIL import Image
+import pytesseract
+import argparse
+import os
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -103,4 +107,11 @@ def getScreenAreaLarge():
     im = pyautogui.screenshot(region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotheight))
     im.show()
 
+
+def ocrCapturedImage():
+    #add code to ocr image here using pytesseract
+
+def ttsTheText():
+    #add code for tts here
 getScreenAreaLarge()
+ocrCapturedImage()

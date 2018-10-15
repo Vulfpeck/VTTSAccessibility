@@ -6,6 +6,11 @@ import time
 import pyautogui
 from win32api import GetSystemMetrics
 from pynput import mouse
+from PIL import Image, ImageEnhance
+import pytesseract
+import argparse
+import cv2
+import os
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -68,19 +73,19 @@ def getScreenAreaStripe():
 
     im = pyautogui.screenshot("screen_region.jpg", region=(
         screenshotLocationX, screenshotLocationY, 500, 200))
-    im.show()
+    print(type(im))
+    return im
 
-def getScreenAreaLarge():
-    initLoc = ()
-    finalLoc = ()
+def getOnclickLocation():
+    clickLoc = ()
 
     def on_click(x, y, button, pressed):
         if pressed:
-            nonlocal initLoc
-            initLoc = (x,y)
-        else:
-            nonlocal finalLoc
-            finalLoc = (x,y)
+            print('heer')
+            nonlocal clickLoc
+            clickLoc = (x,y)
+
+        
         if not pressed:
             # Stop listener
             return False
@@ -90,17 +95,54 @@ def getScreenAreaLarge():
             on_click=on_click,) as listener:
         listener.join()
     
-    
-    print(initLoc)
-    print(finalLoc)
+    return clickLoc
+    # print(initLoc)
+    # print(finalLoc)
 
-    screenshotLocationX = initLoc[0]
-    screenshotLocationY = initLoc[1]
+    # screenshotLocationX = initLoc[0]
+    # screenshotLocationY = initLoc[1]
 
-    screenShotWidth = abs(initLoc[0] - finalLoc[0])
-    screenShotheight = abs (initLoc[1] - finalLoc[1])
+    # screenShotWidth = abs(initLoc[0] - finalLoc[0])
+    # screenShotheight = abs (initLoc[1] - finalLoc[1])
     
-    im = pyautogui.screenshot(region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotheight))
-    im.show()
+    # im = pyautogui.screenshot("screen_region.jpg", region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotheight))
+    # im.show()
+
+
+# def ocrCapturedImage():
+    #add code to ocr image here using pytesseract
+
+#def ttsTheText():
+    #add code for tts 
+
+def getScreenAreaLarge():
+    clickLocInit = getOnclickLocation()
+    clickLocFinal = getOnclickLocation()
+
+    print(clickLocInit)
+    print(clickLocFinal)
+    
+    screenshotLocationX = clickLocInit[0]
+    screenshotLocationY = clickLocInit[1]
+    
+    screenShotWidth = abs(clickLocInit[0] - clickLocFinal[0])
+    screenShotHeight = abs (clickLocInit[1] - clickLocFinal[1])
+
+    im = pyautogui.screenshot("screen_region.jpg", region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotHeight))
+    return im
+
+def ocrCapturedImage():
+    image = cv2.imread('screen_region.jpg')
+    gray = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,21)
+    gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+    gray = cv2.threshold(gray, 0, 150, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    cv2.imwrite('processed.jpg', gray)
+
+    im = Image.open('processed.jpg')
+    
+    ocrText = (pytesseract.image_to_string(im, lang='eng',config='--psm 1'))
+
+
 
 getScreenAreaLarge()
+ocrCapturedImage()

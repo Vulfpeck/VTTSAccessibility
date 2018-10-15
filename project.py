@@ -6,10 +6,14 @@ import time
 import pyautogui
 from win32api import GetSystemMetrics
 from pynput import mouse
-from PIL import Image
+from PIL import Image, ImageEnhance
 import pytesseract
 import argparse
+import cv2
 import os
+from pygame import mixer
+from gtts import gTTS
+import string
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -72,6 +76,7 @@ def getScreenAreaStripe():
 
     im = pyautogui.screenshot("screen_region.jpg", region=(
         screenshotLocationX, screenshotLocationY, 500, 200))
+    print(type(im))
     return im
 
 def getOnclickLocation():
@@ -121,7 +126,7 @@ def getScreenAreaLarge():
     print(clickLocFinal)
     
     screenshotLocationX = clickLocInit[0]
-    screenshotLocationY = clickLocInit[0]
+    screenshotLocationY = clickLocInit[1]
     
     screenShotWidth = abs(clickLocInit[0] - clickLocFinal[0])
     screenShotHeight = abs (clickLocInit[1] - clickLocFinal[1])
@@ -129,6 +134,26 @@ def getScreenAreaLarge():
     im = pyautogui.screenshot("screen_region.jpg", region=(screenshotLocationX, screenshotLocationY, screenShotWidth, screenShotHeight))
     return im
 
+def ocrCapturedImage():
+    image = cv2.imread('screen_region.jpg')
+    gray = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,21)
+    gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+    gray = cv2.threshold(gray, 0, 150, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    cv2.imwrite('processed.jpg', gray)
 
+    im = Image.open('processed.jpg')
+    
+    ocrText = (pytesseract.image_to_string(im, lang='eng',config='--psm 1'))
+
+    ocrText = ocrText.replace('\n', ' ')
+    return ocrText
+
+def textToSpeech():
+    text = ocrCapturedImage()
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()  
 
 getScreenAreaLarge()
+textToSpeech()
